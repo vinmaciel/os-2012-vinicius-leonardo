@@ -3,11 +3,11 @@ import java.util.LinkedList;
 import os.Job;
 
 public class Processor {
+	public static boolean FREE = true;
+	public static boolean BUSY = false;
+	
 	private boolean status;
 	private LinkedList<Job> queue;
-	
-	private static boolean FREE = true;
-	private static boolean BUSY = false;
 	
 	public Processor() {
 		status = FREE;
@@ -19,7 +19,7 @@ public class Processor {
 	 * 
 	 * @return true if FREE; false if BUSY.
 	 */
-	public boolean isFree() {
+	public boolean getStatus() {
 		return this.status;
 	}
 
@@ -47,12 +47,12 @@ public class Processor {
 	}
 	
 	/**
-	 * Removes the job from the top of the queue, and executes it.
+	 * Removes the job from the top of the queue.
 	 */
-	public void dequeue() {
-		if(!this.queue.isEmpty()) {
-			Job job = this.queue.removeFirst();
-			// TODO: execution
-		}
+	public Job dequeue() {
+		if(!this.queue.isEmpty())
+			return this.queue.removeFirst();
+		else
+			return null;
 	}
 }

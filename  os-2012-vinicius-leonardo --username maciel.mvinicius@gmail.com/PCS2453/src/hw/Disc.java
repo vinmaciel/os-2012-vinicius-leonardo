@@ -3,15 +3,24 @@ import java.util.LinkedList;
 import os.Job;
 
 public class Disc {
+	public static boolean FREE = true;
+	public static boolean BUSY = false;
+	
 	private boolean status;
 	private LinkedList<Job> queue;
 
-	private static boolean FREE = true;
-	private static boolean BUSY = false;
-	
 	public Disc() {
 		status = FREE;
 		queue = new LinkedList<Job>();
+	}
+	
+	/**
+	 * Verifies disc's status.
+	 * 
+	 * @return true if FREE; false if BUSY.
+	 */
+	public boolean getStatus() {
+		return this.status;
 	}
 	
 	/**
@@ -38,12 +47,12 @@ public class Disc {
 	}
 	
 	/**
-	 * Removes the job from the top of the queue, and executes the I/O request.
+	 * Removes the job from the top of the queue.
 	 */
-	public void dequeue() {
-		if(!this.queue.isEmpty()) {
-			Job job = this.queue.removeFirst();
-			// TODO: issue
-		}
+	public Job dequeue() {
+		if(!this.queue.isEmpty())
+			return this.queue.removeFirst();
+		else
+			return null;
 	}
 }

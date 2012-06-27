@@ -54,12 +54,13 @@ public class Memory {
 	}
 	
 	/**
-	 * Removes the job from the top of the queue, and allocates memory for it.
+	 * Removes the job from the top of the queue.
 	 */
-	public void dequeue() {
+	public Job dequeue() {
 		if(!this.queue.isEmpty()) {
-			Job job = this.queue.removeFirst();
-			// TODO: allocation
+			return this.queue.removeFirst();
 		}
+		else
+			return null;
 	}
 }
