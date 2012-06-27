@@ -9,7 +9,7 @@ public class Disc {
 	private static boolean FREE = true;
 	private static boolean BUSY = false;
 	
-	Disc() {
+	public Disc() {
 		status = FREE;
 		queue = new LinkedList<Job>();
 	}
