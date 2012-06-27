@@ -21,11 +21,12 @@ public class Input {
 	 * @param fileName is the file to be read.
 	 * @param initialTime marks the current time at the beginning of the execution.
 	 * @param endTime marks the current time at the end of the execution;
+	 * @param jobList stores all the jobs the computer can run.
 	 * @param eventList stores the events described on the file.
 	 * @throws InputReadException if the definition input file doesn't follow the model.
 	 */
-	public static void read(String fileName, int initialTime, int endTime, LinkedList<Event> eventList,
-			LinkedList<Job> jobList) throws InputReadException {
+	public static void read(String fileName, int initialTime, int endTime, LinkedList<Job> jobList,
+			LinkedList<Event> eventList) throws InputReadException {
 		try {
 			// open file
 			FileInputStream inStream = new FileInputStream(fileName);
@@ -34,6 +35,9 @@ public class Input {
 			DataInputStream in = new DataInputStream (inStream);
 			BufferedReader reader = new BufferedReader (new InputStreamReader(in));
 			String line;
+			
+			// get the first comment line
+			line = reader.readLine();
 			
 			// get initial and end time
 			line = reader.readLine();
@@ -79,30 +83,15 @@ public class Input {
 					int arrivalTime = Integer.parseInt(arrival[1]);
 					
 					// search for the job
-					Job job = null;
-					ListIterator<Job> jobIterator = jobList.listIterator();
-					boolean found = false;
-					while(jobIterator.hasNext() && !found) {
-						job = jobIterator.next();
-						if(jobId == job.getId())
-							found = true;
-					}
-					if(found) {
+					Job job = findJob(jobList, jobId);
+					
+					if(job != null) {
 						// if found, create the event and stores it onto the list in arrival time order
-						boolean earlier = false;
-						Event event = new Event(job, arrivalTime);
-						ListIterator<Event> eventIterator = eventList.listIterator();
-						while(eventIterator.hasNext() && !earlier) {
-							Event eventAux = eventIterator.next();
-							if(arrivalTime < eventAux.getArrivalTime()) {
-								eventAux = eventIterator.previous();
-								earlier = true;
-							}
-						}
-						eventIterator.add(event);
+						Event event = new Event(job, arrivalTime, Event.ARRIVAL);
+						event.insert(eventList);
 					}
 					else
-						System.out.println("Invalid job with id " + jobId + ".");
+						System.out.println("Invalid job with id: " + jobId + ".");
 				}
 				
 				line = reader.readLine();
@@ -116,4 +105,26 @@ public class Input {
 			System.err.println("Error: " + e.getMessage());
 		}
 	}
+	
+	/**
+	 * Searches if the job was already defined.
+	 * 
+	 * @param jobList contains all jobs created.
+	 * @param jobId identifies the job being searched.
+	 * @return the job with jobId; or null if not found.
+	 */
+	private static Job findJob(LinkedList<Job> jobList, int jobId) {
+		Job job = null;
+		ListIterator<Job> jobIterator = jobList.listIterator();
+		
+		while(jobIterator.hasNext()) {
+			job = jobIterator.next();
+			if(jobId == job.getId())
+				return job;
+		}
+		
+		return job;
+	}
+	
+	
 }
