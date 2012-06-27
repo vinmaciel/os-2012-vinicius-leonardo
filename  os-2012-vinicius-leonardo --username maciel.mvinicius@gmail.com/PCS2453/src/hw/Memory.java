@@ -7,8 +7,9 @@ public class Memory {
 	private int occupiedSize;
 	private LinkedList<Job> queue;
 
-	Memory(int size) {
+	public Memory(int size) {
 		totalSize = size;
+		occupiedSize = 0;
 		queue = new LinkedList<Job>();
 	}
 	

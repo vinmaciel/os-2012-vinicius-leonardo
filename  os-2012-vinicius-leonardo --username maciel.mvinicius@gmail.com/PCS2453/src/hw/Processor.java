@@ -9,7 +9,7 @@ public class Processor {
 	private static boolean FREE = true;
 	private static boolean BUSY = false;
 	
-	Processor() {
+	public Processor() {
 		status = FREE;
 		queue = new LinkedList<Job>();
 	}
