@@ -3,8 +3,8 @@ import java.util.LinkedList;
 import os.Job;
 
 public class Processor {
-	public static boolean FREE = true;
-	public static boolean BUSY = false;
+	private static boolean FREE = true;
+	private static boolean BUSY = false;
 	
 	private boolean status;
 	private LinkedList<Job> queue;
@@ -19,7 +19,7 @@ public class Processor {
 	 * 
 	 * @return true if FREE; false if BUSY.
 	 */
-	public boolean getStatus() {
+	public boolean isFree() {
 		return this.status;
 	}
 
@@ -35,6 +35,15 @@ public class Processor {
 	 */
 	public void release() {
 		this.status = FREE;
+	}
+	
+	/**
+	 * Verifies if there are no jobs waiting for the processor.
+	 * 
+	 * @return true if there are no jobs enqueued; false if there are.
+	 */
+	public boolean hasEmptyQueue() {
+		return this.queue.isEmpty();
 	}
 	
 	/**

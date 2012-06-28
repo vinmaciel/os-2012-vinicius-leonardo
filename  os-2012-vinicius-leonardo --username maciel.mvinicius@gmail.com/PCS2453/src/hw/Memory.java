@@ -45,6 +45,24 @@ public class Memory {
 	}
 	
 	/**
+	 * Verifies if there are no jobs waiting for the memory.
+	 * 
+	 * @return true if there are no jobs enqueued; false if there are.
+	 */
+	public boolean hasEmptyQueue() {
+		return this.queue.isEmpty();
+	}
+	
+	/**
+	 * Gets the memory space required for the first job of the queue.
+	 * 
+	 * @return next dequeued job's memory space required.
+	 */
+	public int nextSizeRequest() {
+		return this.queue.getFirst().getSize();
+	}
+	
+	/**
 	 * Insert the job in the queue if memory is full.
 	 * 
 	 * @param job to be inserted.
