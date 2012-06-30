@@ -5,6 +5,7 @@ import os.Job;
 public class Processor {
 	private static boolean FREE = true;
 	private static boolean BUSY = false;
+	public static int OVERHEAD_TIME = 0;
 	
 	private boolean status;
 	private LinkedList<Job> queue;
