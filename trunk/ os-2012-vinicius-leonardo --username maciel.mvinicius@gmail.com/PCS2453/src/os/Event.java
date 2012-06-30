@@ -5,16 +5,16 @@ import java.util.ListIterator;
 
 public class Event {
 	// constants
-	static final String[] EVENTS = {"NULL", "Arrival", "Request Memory", "Request Processor",
-		"Release Processor / Request Disc", "Release Disc / Request Processor",
-		"Release Processor and Memory", "Completion"};
+	static final String[] EVENTS = {"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "Arrival                      ", "Request Memory               ", "Request Processor            ",
+		"Release Processor (Issue I/O)", "Request I/O                  ", "Complete I/O                 ", "Completion                   "};
+	static final int INVALID = 0;
 	static final int ARRIVAL = 1;
 	static final int REQUEST_MEMORY = 2;
 	static final int REQUEST_PROCESSOR = 3;
-	static final int REQUEST_DISC = 4;
-	static final int RELEASE_DISC = 5;
-	static final int RELEASE_MEMORY = 6;
-	static final int COMPLETE = 7;
+	static final int ISSUE_IO = 4;
+	static final int REQUEST_IO = 5;
+	static final int RELEASE_IO = 6;
+	static final int COMPLETION = 7;
 	
 	// attributes
 	private Job job;

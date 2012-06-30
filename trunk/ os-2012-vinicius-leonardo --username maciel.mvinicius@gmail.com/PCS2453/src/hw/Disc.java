@@ -7,10 +7,16 @@ public class Disc {
 	private static boolean BUSY = false;
 	
 	private boolean status;
+	private final int positioningTime;
+	private final int latencyTime;
+	private final int transferRatio;
 	private LinkedList<Job> queue;
 
-	public Disc() {
-		status = FREE;
+	public Disc(int pt, int lt, int transferRatio) {
+		this.status = FREE;
+		this.positioningTime = pt;
+		this.latencyTime = lt;
+		this.transferRatio = transferRatio;
 		queue = new LinkedList<Job>();
 	}
 	
@@ -21,6 +27,16 @@ public class Disc {
 	 */
 	public boolean isFree() {
 		return this.status;
+	}
+	
+	/**
+	 * Gets the time taken to this disc to issue a I/O operation.
+	 * 
+	 * @param recordSize to be processed.
+	 * @return disc's processing time.
+	 */
+	public int getProcessingTime(int recordSize) {
+		return (this.positioningTime + this.latencyTime + this.transferRatio*recordSize);
 	}
 	
 	/**

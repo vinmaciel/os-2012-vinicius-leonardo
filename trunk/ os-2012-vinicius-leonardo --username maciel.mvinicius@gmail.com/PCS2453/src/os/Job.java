@@ -3,14 +3,22 @@ package os;
 public class Job {
 	private int id;
 	private int memorySpace;
-	private int processigTime;
+	private int processingTime;
 	private int ioRequests;
+	private int interrequestTime;
+	private int recordLength;
 	
 	public Job(int id, int procTime, int mem, int io) {
 		this.id = id;
-		this.processigTime = procTime;
+		this.processingTime = procTime;
 		this.memorySpace = mem;
 		this.ioRequests = io;
+		
+		this.recordLength = 100; // value guessed...
+		if(this.ioRequests > 0)
+			this.interrequestTime = this.processingTime/this.ioRequests;
+		else
+			this.interrequestTime = 0;
 	}
 	
 	/**
@@ -37,7 +45,7 @@ public class Job {
 	 * @return job's processing time.
 	 */
 	public int getProcessingTime() {
-		return this.processigTime;
+		return this.processingTime;
 	}
 	
 	/**
@@ -47,5 +55,44 @@ public class Job {
 	 */
 	public int getIoRequests() {
 		return this.ioRequests;
+	}
+	
+	/**
+	 * Gets time taken to the next I/O issue.
+	 * 
+	 * @return job's interrequest time.
+	 */
+	public int getInterrequestTime() {
+		return this.interrequestTime;
+	}
+	
+	/**
+	 * Gets time taken to process an I/O request.
+	 * 
+	 * @return job's record length.
+	 */
+	public int getRecordLength() {
+		return this.recordLength;
+	}
+	
+	/**
+	 * Reduces the I/O requests remaining for this job to complete execution.
+	 */
+	public void issuedIo() {
+		this.ioRequests--;
+	}
+	
+	/**
+	 * Reduces the remaining time to process this job.
+	 */
+	public void partialProcessed() {
+		this.processingTime -= this.interrequestTime;
+	}
+	
+	/**
+	 * Removes the remaining time to process this job.
+	 */
+	public void fullProcessed() {
+		this.processingTime = 0;
 	}
 }

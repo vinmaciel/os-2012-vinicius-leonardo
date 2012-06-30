@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+@SuppressWarnings("serial")
 class InputReadException extends Exception {
 	public InputReadException(String fileName) {
 		super("File " + fileName + " with incorrect definition.");
@@ -25,7 +26,7 @@ public class Input {
 	 * @param eventList stores the events described on the file.
 	 * @throws InputReadException if the definition input file doesn't follow the model.
 	 */
-	public static void read(String fileName, int initialTime, int endTime, LinkedList<Job> jobList,
+	public static void read(String fileName, int[] timing, LinkedList<Job> jobList,
 			LinkedList<Event> eventList) throws InputReadException {
 		try {
 			// open file
@@ -41,9 +42,9 @@ public class Input {
 			
 			// get initial and end time
 			line = reader.readLine();
-			initialTime = Integer.parseInt(line);
+			timing[0] = Integer.parseInt(line);
 			line = reader.readLine();
-			endTime = Integer.parseInt(line);
+			timing[1] = Integer.parseInt(line);
 			
 			// get a blank line
 			line = reader.readLine();
@@ -63,12 +64,13 @@ public class Input {
 					Job job = new Job(jobId, processingTime, memorySize, ioRequests);
 					jobList.add(job);
 					
-					System.out.println("Id = " + jobId + "  Processing time: = " + processingTime + 
-							" Memory required = " + memorySize + " I/O requests = " + ioRequests); 
+					System.out.println("Id: " + jobId + "\tProcessing time: " + processingTime + 
+							"\tMemory required: " + memorySize + "\tI/O requests: " + ioRequests); 
 				}
 				
 				line = reader.readLine();
 			}
+			System.out.println("");
 			
 			// get a blank line
 			line = reader.readLine();
@@ -89,6 +91,8 @@ public class Input {
 						// if found, create the event and stores it onto the list in arrival time order
 						Event event = new Event(job, arrivalTime, Event.ARRIVAL);
 						event.insert(eventList);
+
+						System.out.println("Job: " + jobId + "\tArrival time: " + arrivalTime);
 					}
 					else
 						System.out.println("Invalid job with id: " + jobId + ".");
@@ -125,6 +129,4 @@ public class Input {
 		
 		return job;
 	}
-	
-	
 }

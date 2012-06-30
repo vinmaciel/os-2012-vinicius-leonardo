@@ -10,8 +10,8 @@
 4 100 80 0
 
 ; Jobs to be executed:
-; Arrival time | Job id
-30 2
-60 1
+; Job Id | Arrival time
+1 30
+2 60
 
 ; obs: remember the blank white line after the programs.

@@ -3,13 +3,15 @@ import java.util.LinkedList;
 import os.Job;
 
 public class Memory {
-	private int totalSize;
+	private final int totalSize;
 	private int occupiedSize;
+	private final int relocatingTime;
 	private LinkedList<Job> queue;
 
-	public Memory(int size) {
-		totalSize = size;
-		occupiedSize = 0;
+	public Memory(int size, int rt) {
+		this.totalSize = size;
+		this.occupiedSize = 0;
+		this.relocatingTime = rt;
 		queue = new LinkedList<Job>();
 	}
 	
@@ -24,6 +26,15 @@ public class Memory {
 			return true;
 		else
 			return false;
+	}
+	
+	/**
+	 * Gets the time necessary for the this memory to allocate memory to the job.
+	 * 
+	 * @return memory's relocating time.
+	 */
+	public int getRelocatingTime() {
+		return this.relocatingTime;
 	}
 	
 	/**
