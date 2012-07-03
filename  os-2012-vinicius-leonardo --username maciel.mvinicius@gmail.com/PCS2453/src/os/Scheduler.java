@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 public class Scheduler {
 	private static final int MEMORY_RELOCATING_TIME = 20;
-	private static final int MEMORY_SIZE = 80;
+	private static final int MEMORY_SIZE = 200;
 	private static final int DISC_POSITIONING_TIME = 5;
 	private static final int DISC_LATENCY_TIME = 5;
 	private static final int DISC_TRANSFER_RATE = 40;
@@ -179,6 +179,9 @@ public class Scheduler {
 			currentEvent = Event.getNew(eventList);
 		}
 
-		System.out.println(this.finalTime + "\t\t\t\t\t\t\tFinishing...");
+		if(currentEvent == null)
+			System.out.println(currentTime + "\t\t\t\t\t\t\tNo more jobs to simulate.");
+		else
+			System.out.println(this.finalTime + "\t\t\t\t\t\t\tEnd of simulation.");
 	}
 }
