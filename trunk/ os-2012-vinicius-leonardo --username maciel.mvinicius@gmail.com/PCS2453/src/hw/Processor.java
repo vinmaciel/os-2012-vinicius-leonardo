@@ -8,10 +8,12 @@ public class Processor {
 	public static int OVERHEAD_TIME = 0;
 	
 	private boolean status;
+	private final int quantum;
 	private LinkedList<Job> queue;
 	
-	public Processor() {
+	public Processor(int timeSlice) {
 		status = FREE;
+		this.quantum = timeSlice;
 		queue = new LinkedList<Job>();
 	}
 	
@@ -22,6 +24,15 @@ public class Processor {
 	 */
 	public boolean isFree() {
 		return this.status;
+	}
+	
+	/**
+	 * Get the maximum time slice this processor can give.
+	 * 
+	 * @return processor's defined quantum.
+	 */
+	public int getQuantum() {
+		return this.quantum;
 	}
 
 	/**
