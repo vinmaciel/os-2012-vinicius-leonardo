@@ -15,6 +15,8 @@ class InputReadException extends Exception {
 }
 
 public class Input {
+	
+	private static final int JOB_RECORD_LENGTH = 100;
 
 	/**
 	 * Reads the definition file.
@@ -61,7 +63,7 @@ public class Input {
 					int ioRequests = Integer.parseInt(definition[3]);
 					
 					// create job and stores it onto the list
-					Job job = new Job(jobId, processingTime, memorySize, ioRequests);
+					Job job = new Job(jobId, processingTime, memorySize, ioRequests, JOB_RECORD_LENGTH);
 					jobList.add(job);
 					
 					System.out.println("Id: " + jobId + "\tProcessing time: " + processingTime + 

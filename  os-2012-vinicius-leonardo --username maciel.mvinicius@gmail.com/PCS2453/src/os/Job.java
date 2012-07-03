@@ -8,17 +8,23 @@ public class Job {
 	private int interrequestTime;
 	private int recordLength;
 	
-	public Job(int id, int procTime, int mem, int io) {
+	private int timeToNextRelease;
+	
+	public Job(int id, int procTime, int mem, int io, int rl) {
 		this.id = id;
 		this.processingTime = procTime;
 		this.memorySpace = mem;
 		this.ioRequests = io;
 		
-		this.recordLength = 100; // value guessed...
-		if(this.ioRequests > 0)
-			this.interrequestTime = this.processingTime/this.ioRequests;
-		else
+		this.recordLength = rl;
+		if(this.ioRequests > 0) {
+			this.interrequestTime = this.processingTime/(this.ioRequests +1);
+			this.timeToNextRelease = this.interrequestTime;
+		}
+		else {
 			this.interrequestTime = 0;
+			this.timeToNextRelease = this.processingTime;
+		}
 	}
 	
 	/**
@@ -76,23 +82,35 @@ public class Job {
 	}
 	
 	/**
+	 * Gets time taken until this job issues another I/O operation, has its quantum finished, or end its processing.
+	 * 
+	 * @return job's time to the next processor release.
+	 */
+	public int getTimeToNextRelease() {
+		return this.timeToNextRelease;
+	}
+	
+	/**
 	 * Reduces the I/O requests remaining for this job to complete execution.
 	 */
 	public void issuedIo() {
 		this.ioRequests--;
+		this.timeToNextRelease = this.interrequestTime;
 	}
 	
 	/**
 	 * Reduces the remaining time to process this job.
 	 */
-	public void partialProcessed() {
-		this.processingTime -= this.interrequestTime;
+	public void partialProcessed(int time) {
+		this.timeToNextRelease -= time;
+		this.processingTime -= time;
 	}
 	
 	/**
 	 * Removes the remaining time to process this job.
 	 */
-	public void fullProcessed() {
+	public void fullyProcessed() {
+		this.timeToNextRelease = 0;
 		this.processingTime = 0;
 	}
 }

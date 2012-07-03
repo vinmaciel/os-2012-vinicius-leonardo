@@ -6,7 +6,8 @@ import java.util.ListIterator;
 public class Event {
 	// constants
 	static final String[] EVENTS = {"XXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "Arrival                      ", "Request Memory               ", "Request Processor            ",
-		"Release Processor (Issue I/O)", "Request I/O                  ", "Complete I/O                 ", "Completion                   "};
+		"Release Processor (Issue I/O)", "Request I/O                  ", "Complete I/O                 ", "Completion                   ",
+		"Time-out                     "};
 	static final int INVALID = 0;
 	static final int ARRIVAL = 1;
 	static final int REQUEST_MEMORY = 2;
@@ -15,6 +16,7 @@ public class Event {
 	static final int REQUEST_IO = 5;
 	static final int RELEASE_IO = 6;
 	static final int COMPLETION = 7;
+	static final int TIME_OUT = 8;
 	
 	// attributes
 	private Job job;

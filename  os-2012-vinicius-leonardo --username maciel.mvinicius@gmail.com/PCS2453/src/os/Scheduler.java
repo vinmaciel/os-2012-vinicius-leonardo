@@ -6,9 +6,12 @@ import java.util.LinkedList;
 public class Scheduler {
 	private static final int MEMORY_RELOCATING_TIME = 20;
 	private static final int MEMORY_SIZE = 200;
+	
 	private static final int DISC_POSITIONING_TIME = 5;
 	private static final int DISC_LATENCY_TIME = 5;
 	private static final int DISC_TRANSFER_RATE = 40;
+	
+	private static final int PROCESSOR_QUANTUM = 50;
 	
 	private int initialTime;
 	private int finalTime;
@@ -35,7 +38,7 @@ public class Scheduler {
 		finalTime = timing[1];
 		
 		memory = new Memory(MEMORY_SIZE, MEMORY_RELOCATING_TIME);
-		processor = new Processor();
+		processor = new Processor(PROCESSOR_QUANTUM);
 		disc = new Disc(DISC_POSITIONING_TIME, DISC_LATENCY_TIME, DISC_TRANSFER_RATE);
 	}
 	
@@ -57,9 +60,9 @@ public class Scheduler {
 		
 		// while there are more events, and current time didn't surpass the end of times
 		while(currentEvent != null && currentTime <= this.finalTime) {
-			System.out.print(currentTime);
 			Job currentJob = currentEvent.getJob();
 			currentTime = currentEvent.getTime();
+			System.out.print(currentTime);
 			
 			switch(currentEvent.getType()) {
 			// job arrives
@@ -87,15 +90,25 @@ public class Scheduler {
 			case Event.REQUEST_PROCESSOR:
 				if(processor.isFree()) {
 					processor.assign();
-					if(currentJob.getIoRequests() > 0) {
-						nextEvent = new Event(currentJob, currentTime + disc.getProcessingTime(currentJob.getRecordLength()), Event.ISSUE_IO);
-						currentJob.partialProcessed();
+					
+					if(currentJob.getTimeToNextRelease() <= processor.getQuantum()) {
+						// processes until the release (to IO request or completion)
+						if(currentJob.getIoRequests() > 0) {
+							nextEvent = new Event(currentJob, currentTime + currentJob.getTimeToNextRelease(), Event.ISSUE_IO);
+							currentJob.partialProcessed(currentJob.getTimeToNextRelease());
+						}
+						else {
+							nextEvent = new Event(currentJob, currentTime + currentJob.getProcessingTime(), Event.COMPLETION);
+							currentJob.fullyProcessed();
+						}
 					}
 					else {
-						nextEvent = new Event(currentJob, currentTime + currentJob.getProcessingTime(), Event.COMPLETION);
-						currentJob.fullProcessed();
+						// processes until the end of the time slice
+						nextEvent = new Event(currentJob, currentTime + processor.getQuantum(), Event.TIME_OUT);
+						currentJob.partialProcessed(processor.getQuantum());
 					}
 					nextEvent.insert(eventList);
+					
 					System.out.println("\t" + Event.REQUEST_PROCESSOR + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.REQUEST_PROCESSOR] + "\tProcessor assigned to the job.");
 				}
 				else {
@@ -124,7 +137,7 @@ public class Scheduler {
 				if(disc.isFree()) {
 					disc.assign();
 					currentJob.issuedIo();
-					nextEvent = new Event(currentJob, currentTime + currentJob.getRecordLength(), Event.RELEASE_IO);
+					nextEvent = new Event(currentJob, currentTime + disc.getProcessingTime(currentJob.getRecordLength()), Event.RELEASE_IO);
 					nextEvent.insert(eventList);
 					System.out.println("\t" + Event.REQUEST_IO + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.REQUEST_IO] + "\tDisc assigned to the job.");
 				}
@@ -139,7 +152,7 @@ public class Scheduler {
 				disc.release();
 				nextEvent = new Event(currentJob, currentTime, Event.REQUEST_PROCESSOR);
 				nextEvent.insert(eventList);
-				System.out.println("\t" + Event.RELEASE_IO + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.RELEASE_IO] + "\tJob releases the disc.");
+				System.out.println("\t" + Event.RELEASE_IO + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.RELEASE_IO] + "\tJob released the disc.");
 				
 				// if there are another job waiting for the disc, requests it
 				if(!disc.hasEmptyQueue()) {
@@ -153,7 +166,7 @@ public class Scheduler {
 			case Event.COMPLETION:
 				processor.release();
 				memory.release(currentJob.getSize());
-				System.out.println("\t" + Event.COMPLETION + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.COMPLETION] + "\tJob releases processor and memory.");
+				System.out.println("\t" + Event.COMPLETION + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.COMPLETION] + "\tJob released processor and memory.");
 				
 				// if there are another job waiting for the processor, requests it
 				if(!processor.hasEmptyQueue()) {
@@ -171,6 +184,20 @@ public class Scheduler {
 				break;
 			
 			// others...
+			case Event.TIME_OUT:
+				processor.release();
+				// if there are another job waiting for the processor, requests it
+				if(!processor.hasEmptyQueue()) {
+					Job jobAux = processor.dequeue();
+					nextEvent = new Event(jobAux, currentTime + Processor.OVERHEAD_TIME, Event.REQUEST_PROCESSOR);
+					nextEvent.insert(eventList);
+				}
+				
+				nextEvent = new Event(currentJob, currentTime, Event.REQUEST_PROCESSOR);
+				nextEvent.insert(eventList);
+				System.out.println("\t" + Event.TIME_OUT + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.TIME_OUT] + "\tJob released processor.");
+				break;
+				
 			default:
 				System.out.println("\t" + Event.INVALID + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.INVALID] + "\tInvalid event.");
 			}

@@ -4,10 +4,10 @@
 
 ; Jobs:
 ; Id | Processing time | Memory space required | I/O requests 
-1 200 40 3
-2 250 70 4
-3 800 50 15
-4 550 80 0
+1 400 40 3
+2 550 70 4
+3 1200 50 15
+4 650 80 0
 
 ; Jobs to be executed:
 ; Job Id | Arrival time
