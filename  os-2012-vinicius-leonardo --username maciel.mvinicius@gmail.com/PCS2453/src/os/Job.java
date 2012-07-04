@@ -7,14 +7,21 @@ public class Job {
 	private int ioRequests;
 	private int interrequestTime;
 	private int recordLength;
+	private Segment[] segmentList;
 	
 	private int timeToNextRelease;
 	
-	public Job(int id, int procTime, int mem, int io, int rl) {
+	public Job(int id, int procTime, int io, int rl, int[] segmentSizes) {
 		this.id = id;
 		this.processingTime = procTime;
-		this.memorySpace = mem;
+		this.memorySpace = 0;
 		this.ioRequests = io;
+		this.segmentList = new Segment[segmentSizes.length];
+		
+		for(int i = 0; i < segmentSizes.length; i++) {
+			segmentList[i] = new Segment(segmentSizes[i]);
+			this.memorySpace += segmentSizes[i];
+		}
 		
 		this.recordLength = rl;
 		if(this.ioRequests > 0) {
@@ -79,6 +86,16 @@ public class Job {
 	 */
 	public int getRecordLength() {
 		return this.recordLength;
+	}
+	
+	/**
+	 * Gets the selected segment of this job.
+	 * 
+	 * @param index of the segment
+	 * @return job's segments list.
+	 */
+	public Segment[] getSegmentList() {
+		return this.segmentList;
 	}
 	
 	/**

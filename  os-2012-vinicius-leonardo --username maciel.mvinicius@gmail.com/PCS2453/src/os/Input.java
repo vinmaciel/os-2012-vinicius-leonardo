@@ -59,15 +59,21 @@ public class Input {
 					String[] definition = line.split(" ");
 					int jobId = Integer.parseInt(definition[0]);
 					int processingTime = Integer.parseInt(definition[1]);
-					int memorySize = Integer.parseInt(definition[2]);
-					int ioRequests = Integer.parseInt(definition[3]);
+					int segmentsNumber = Integer.parseInt(definition[2]);
+					
+					int i;
+					int[] segmentSizes = new int[segmentsNumber];
+					for(i = 0; i < segmentsNumber; i++)
+						segmentSizes[i] = Integer.parseInt(definition[3+i]);
+						
+					int ioRequests = Integer.parseInt(definition[3+i]);
 					
 					// create job and stores it onto the list
-					Job job = new Job(jobId, processingTime, memorySize, ioRequests, JOB_RECORD_LENGTH);
+					Job job = new Job(jobId, processingTime, ioRequests, JOB_RECORD_LENGTH, segmentSizes);
 					jobList.add(job);
 					
 					System.out.println("Id: " + jobId + "\tProcessing time: " + processingTime + 
-							"\tMemory required: " + memorySize + "\tI/O requests: " + ioRequests); 
+							"\tNumber of segments: " + segmentsNumber + "\tI/O requests: " + ioRequests); 
 				}
 				
 				line = reader.readLine();

@@ -1,19 +1,12 @@
 package os;
 
 import hw.*;
+import user.Parameter;
 import java.util.LinkedList;
+import user.Parameter;
+@SuppressWarnings("unused")
 
 public class Scheduler {
-	private static final int MEMORY_RELOCATING_TIME = 20;
-	private static final int MEMORY_SIZE = 200;
-	
-	private static final int DISC_POSITIONING_TIME = 5;
-	private static final int DISC_LATENCY_TIME = 5;
-	private static final int DISC_TRANSFER_RATE = 40;
-	
-	private static final int PROCESSOR_QUANTUM = 50;
-	
-	private static final int MULTIPROGRAMMING_LIMIT = 2;
 	
 	private int initialTime;
 	private int finalTime;
@@ -41,11 +34,11 @@ public class Scheduler {
 		this.initialTime = timing[0];
 		this.finalTime = timing[1];
 		
-		this.multiprogrammingController = new MultiprogrammingController(MULTIPROGRAMMING_LIMIT);
+		this.multiprogrammingController = new MultiprogrammingController(Parameter.MULTIPROGRAMMING_LIMIT);
 		
-		this.memory = new Memory(MEMORY_SIZE, MEMORY_RELOCATING_TIME);
-		this.processor = new Processor(PROCESSOR_QUANTUM);
-		this.disc = new Disc(DISC_POSITIONING_TIME, DISC_LATENCY_TIME, DISC_TRANSFER_RATE);
+		this.memory = new Memory(Parameter.MEMORY_SIZE, Parameter.MEMORY_RELOCATING_TIME);
+		this.processor = new Processor(Parameter.PROCESSOR_QUANTUM);
+		this.disc = new Disc(Parameter.DISC_POSITIONING_TIME, Parameter.DISC_LATENCY_TIME, Parameter.DISC_TRANSFER_RATE);
 	}
 	
 	/**
@@ -66,6 +59,7 @@ public class Scheduler {
 		
 		// while there are more events, and current time didn't surpass the end of times
 		while(currentEvent != null && currentTime <= this.finalTime) {
+			if(Parameter.MEMORY_PRINT_SEGMENTS) memory.printSegmentMap();
 			Job currentJob = currentEvent.getJob();
 			currentTime = currentEvent.getTime();
 			System.out.print(currentTime);
@@ -88,8 +82,7 @@ public class Scheduler {
 				
 			// job requests memory allocation
 			case Event.REQUEST_MEMORY:
-				if(memory.thereIsFreeSpace(currentJob.getSize())) {
-					memory.allocate(currentJob.getSize());
+				if(memory.allocate(currentJob.getSegmentList())) {
 					nextEvent = new Event(currentJob, currentTime + memory.getRelocatingTime(), Event.REQUEST_PROCESSOR);
 					nextEvent.insert(eventList);
 					System.out.println("\t" + Event.REQUEST_MEMORY + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.REQUEST_MEMORY] + "\tMemory allocated to the job.");
@@ -179,7 +172,7 @@ public class Scheduler {
 			// job completes its execution, releasing memory and the processor
 			case Event.COMPLETION:
 				processor.release();
-				memory.release(currentJob.getSize());
+				memory.release(currentJob.getSegmentList());
 				multiprogrammingController.finish();
 				System.out.println("\t" + Event.COMPLETION + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.COMPLETION] + "\tJob released processor and memory.");
 				
@@ -191,7 +184,8 @@ public class Scheduler {
 				}
 				
 				// if there is another job waiting for the memory, requests it
-				if(!memory.hasEmptyQueue() && memory.thereIsFreeSpace(memory.nextSizeRequest())) {
+				if(!memory.hasEmptyQueue() && memory.allocate(memory.nextSegmentsRequest())) {
+					memory.release(memory.nextSegmentsRequest());
 					Job jobAux = memory.dequeue();
 					nextEvent = new Event(jobAux, currentTime, Event.REQUEST_MEMORY);
 					nextEvent.insert(eventList);
