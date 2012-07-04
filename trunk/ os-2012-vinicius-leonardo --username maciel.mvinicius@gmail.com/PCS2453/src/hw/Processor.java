@@ -27,7 +27,7 @@ public class Processor {
 	}
 	
 	/**
-	 * Get the maximum time slice this processor can give.
+	 * Gets the maximum time slice this processor can give.
 	 * 
 	 * @return processor's defined quantum.
 	 */
