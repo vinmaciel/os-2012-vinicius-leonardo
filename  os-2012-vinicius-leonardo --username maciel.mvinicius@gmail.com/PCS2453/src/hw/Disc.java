@@ -1,5 +1,9 @@
 package hw;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
+
+import os.File;
 import os.Job;
 
 public class Disc {
@@ -11,6 +15,8 @@ public class Disc {
 	private final int latencyTime;
 	private final int transferRatio;
 	private LinkedList<Job> queue;
+	
+	private static ArrayList<File> files;
 
 	public Disc(int pt, int lt, int transferRatio) {
 		this.status = FREE;
@@ -18,6 +24,9 @@ public class Disc {
 		this.latencyTime = lt;
 		this.transferRatio = transferRatio;
 		queue = new LinkedList<Job>();
+		files = new ArrayList<File>();
+		
+		
 	}
 	
 	/**
@@ -80,4 +89,6 @@ public class Disc {
 		else
 			return null;
 	}
+
+	
 }

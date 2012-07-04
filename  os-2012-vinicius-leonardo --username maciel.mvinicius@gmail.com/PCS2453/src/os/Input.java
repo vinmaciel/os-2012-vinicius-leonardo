@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -29,7 +31,7 @@ public class Input {
 	 * @throws InputReadException if the definition input file doesn't follow the model.
 	 */
 	public static void read(String fileName, int[] timing, LinkedList<Job> jobList,
-			LinkedList<Event> eventList) throws InputReadException {
+			LinkedList<Event> eventList, ArrayList<File> filesList) throws InputReadException {
 		try {
 			// open file
 			FileInputStream inStream = new FileInputStream(fileName);
@@ -51,6 +53,9 @@ public class Input {
 			// get a blank line
 			line = reader.readLine();
 			
+			// fill files list
+			fillFiles(filesList);
+			
 			// get the jobs definition
 			line = reader.readLine();
 			while(!line.isEmpty()) {	// while not EOF
@@ -65,20 +70,52 @@ public class Input {
 					int[] segmentSizes = new int[segmentsNumber];
 					for(i = 0; i < segmentsNumber; i++)
 						segmentSizes[i] = Integer.parseInt(definition[3+i]);
-						
+			
+					
 					int ioRequests = Integer.parseInt(definition[3+i]);
 					
+					
+					
+					int numberOfFiles = Integer.parseInt(definition[4+i]);
+					
+					ArrayList<String> filesUsed = new ArrayList<String>();
+					for (int j = 0; j < numberOfFiles; j++) {
+						filesUsed.add(definition[5+i+j]);
+					}
+					
+
 					// create job and stores it onto the list
-					Job job = new Job(jobId, processingTime, ioRequests, JOB_RECORD_LENGTH, segmentSizes);
+
+
+					Job job = new Job(jobId, processingTime, ioRequests, JOB_RECORD_LENGTH, segmentSizes, filesUsed);
 					jobList.add(job);
 					
+					ListIterator<String> itr = filesUsed.listIterator();
+					while (itr.hasNext()) {
+				    	String element = itr.next();
+				    	File.getFile(element, filesList).addOwner(job);
+			    	}
+					
 					System.out.println("Id: " + jobId + "\tProcessing time: " + processingTime + 
-							"\tNumber of segments: " + segmentsNumber + "\tI/O requests: " + ioRequests); 
+							"\tNumber of segments: " + segmentsNumber + "\tI/O requests: " + ioRequests +
+							" \tNumber of files: " + numberOfFiles); 
+					
+					if (numberOfFiles != 0) {
+						System.out.print("Files: ");
+						ListIterator<String> itr2 = filesUsed.listIterator();
+					    while (itr2.hasNext()) {
+					    	String element = itr2.next();
+					    	System.out.print(element + " ");
+					    }
+					    System.out.println();
+					}
+					System.out.println();
 				}
 				
 				line = reader.readLine();
 			}
 			System.out.println("");
+			
 			
 			// get a blank line
 			line = reader.readLine();
@@ -136,5 +173,17 @@ public class Input {
 		}
 		
 		return job;
+	}
+	
+	private static void fillFiles(ArrayList<File> filesList) {
+
+		filesList.add(new File("calc", 32));
+		filesList.add(new File("pad", 16));
+		filesList.add(new File("minesweeper", 20));
+		filesList.add(new File("salt", 5));
+		filesList.add(new File("pepper", 10));
+		filesList.add(new File("tea", 48));
+		filesList.add(new File("coffee", 32));
+		
 	}
 }
