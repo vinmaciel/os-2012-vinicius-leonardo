@@ -1,5 +1,7 @@
 package os;
 
+import java.util.ArrayList;
+
 public class Job {
 	private int id;
 	private int memorySpace;
@@ -10,8 +12,9 @@ public class Job {
 	private Segment[] segmentList;
 	
 	private int timeToNextRelease;
+	private ArrayList<String> filesList;
 	
-	public Job(int id, int procTime, int io, int rl, int[] segmentSizes) {
+	public Job(int id, int procTime, int io, int rl, int[] segmentSizes, ArrayList<String> filesList) {
 		this.id = id;
 		this.processingTime = procTime;
 		this.memorySpace = 0;
@@ -32,6 +35,8 @@ public class Job {
 			this.interrequestTime = 0;
 			this.timeToNextRelease = this.processingTime;
 		}
+		
+		this.filesList = filesList;
 	}
 	
 	/**

@@ -1,6 +1,10 @@
 package os;
 
-import hw.*;
+import hw.Disc;
+import hw.Memory;
+import hw.Processor;
+
+import java.util.ArrayList;
 import user.Parameter;
 import java.util.LinkedList;
 import user.Parameter;
@@ -23,10 +27,16 @@ public class Scheduler {
 	public Scheduler() {
 		int[] timing = new int[2];
 		
+		this.memory = new Memory(Parameter.MEMORY_SIZE, Parameter.MEMORY_RELOCATING_TIME);
+		this.processor = new Processor(Parameter.PROCESSOR_QUANTUM);
+		this.disc = new Disc(Parameter.DISC_POSITIONING_TIME, Parameter.DISC_LATENCY_TIME, Parameter.DISC_TRANSFER_RATE);
+		
 		this.eventList = new LinkedList<Event>();
 		this.jobTable = new LinkedList<Job>();
+
+		ArrayList<File> filesList = new ArrayList<File>();
 		try {
-			Input.read("input.txt", timing, jobTable, eventList);
+			Input.read("input.txt", timing, jobTable, eventList, filesList);
 		}
 		catch(InputReadException e) {
 			e.printStackTrace();
@@ -36,9 +46,6 @@ public class Scheduler {
 		
 		this.multiprogrammingController = new MultiprogrammingController(Parameter.MULTIPROGRAMMING_LIMIT);
 		
-		this.memory = new Memory(Parameter.MEMORY_SIZE, Parameter.MEMORY_RELOCATING_TIME);
-		this.processor = new Processor(Parameter.PROCESSOR_QUANTUM);
-		this.disc = new Disc(Parameter.DISC_POSITIONING_TIME, Parameter.DISC_LATENCY_TIME, Parameter.DISC_TRANSFER_RATE);
 	}
 	
 	/**
