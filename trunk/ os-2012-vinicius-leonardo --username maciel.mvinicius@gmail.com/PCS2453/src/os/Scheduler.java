@@ -13,8 +13,12 @@ public class Scheduler {
 	
 	private static final int PROCESSOR_QUANTUM = 50;
 	
+	private static final int MULTIPROGRAMMING_LIMIT = 2;
+	
 	private int initialTime;
 	private int finalTime;
+	
+	private MultiprogrammingController multiprogrammingController;
 	
 	private Memory memory;
 	private Processor processor;
@@ -26,20 +30,22 @@ public class Scheduler {
 	public Scheduler() {
 		int[] timing = new int[2];
 		
-		eventList = new LinkedList<Event>();
-		jobTable = new LinkedList<Job>();
+		this.eventList = new LinkedList<Event>();
+		this.jobTable = new LinkedList<Job>();
 		try {
 			Input.read("input.txt", timing, jobTable, eventList);
 		}
 		catch(InputReadException e) {
 			e.printStackTrace();
 		}
-		initialTime = timing[0];
-		finalTime = timing[1];
+		this.initialTime = timing[0];
+		this.finalTime = timing[1];
 		
-		memory = new Memory(MEMORY_SIZE, MEMORY_RELOCATING_TIME);
-		processor = new Processor(PROCESSOR_QUANTUM);
-		disc = new Disc(DISC_POSITIONING_TIME, DISC_LATENCY_TIME, DISC_TRANSFER_RATE);
+		this.multiprogrammingController = new MultiprogrammingController(MULTIPROGRAMMING_LIMIT);
+		
+		this.memory = new Memory(MEMORY_SIZE, MEMORY_RELOCATING_TIME);
+		this.processor = new Processor(PROCESSOR_QUANTUM);
+		this.disc = new Disc(DISC_POSITIONING_TIME, DISC_LATENCY_TIME, DISC_TRANSFER_RATE);
 	}
 	
 	/**
@@ -67,9 +73,17 @@ public class Scheduler {
 			switch(currentEvent.getType()) {
 			// job arrives
 			case Event.ARRIVAL:
-				nextEvent = new Event(currentJob, currentTime, Event.REQUEST_MEMORY);
-				nextEvent.insert(eventList);
-				System.out.println("\t" + Event.ARRIVAL + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.ARRIVAL] + "\tJob arrived at the system.");
+				if(multiprogrammingController.canRun()) {
+					multiprogrammingController.run();
+					
+					nextEvent = new Event(currentJob, currentTime, Event.REQUEST_MEMORY);
+					nextEvent.insert(eventList);
+					System.out.println("\t" + Event.ARRIVAL + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.ARRIVAL] + "\tJob arrived at the system.");
+				}
+				else {
+					multiprogrammingController.enqueue(currentJob);
+					System.out.println("\t" + Event.ARRIVAL + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.ARRIVAL] + "\tJob entered multiprogramming queue.");
+				}
 				break;
 				
 			// job requests memory allocation
@@ -166,24 +180,32 @@ public class Scheduler {
 			case Event.COMPLETION:
 				processor.release();
 				memory.release(currentJob.getSize());
+				multiprogrammingController.finish();
 				System.out.println("\t" + Event.COMPLETION + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.COMPLETION] + "\tJob released processor and memory.");
 				
-				// if there are another job waiting for the processor, requests it
+				// if there is another job waiting for the processor, requests it
 				if(!processor.hasEmptyQueue()) {
 					Job jobAux = processor.dequeue();
 					nextEvent = new Event(jobAux, currentTime + Processor.OVERHEAD_TIME, Event.REQUEST_PROCESSOR);
 					nextEvent.insert(eventList);
 				}
 				
-				// if there are another job waiting for the memory, requests it
+				// if there is another job waiting for the memory, requests it
 				if(!memory.hasEmptyQueue() && memory.thereIsFreeSpace(memory.nextSizeRequest())) {
 					Job jobAux = memory.dequeue();
-					nextEvent = new Event(jobAux, currentTime + memory.getRelocatingTime(), Event.REQUEST_MEMORY);
+					nextEvent = new Event(jobAux, currentTime, Event.REQUEST_MEMORY);
+					nextEvent.insert(eventList);
+				}
+				
+				// if there is another job waiting for multiprogramming, executes it
+				if(!multiprogrammingController.hasEmptyQueue()) {
+					Job jobAux = multiprogrammingController.dequeue();
+					nextEvent = new Event(jobAux, currentTime, Event.REQUEST_MEMORY);
 					nextEvent.insert(eventList);
 				}
 				break;
 			
-			// others...
+			// job completes its time slice, releasing the processor and requesting it at the end of the queue
 			case Event.TIME_OUT:
 				processor.release();
 				// if there are another job waiting for the processor, requests it
@@ -198,6 +220,7 @@ public class Scheduler {
 				System.out.println("\t" + Event.TIME_OUT + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.TIME_OUT] + "\tJob released processor.");
 				break;
 				
+			//others...
 			default:
 				System.out.println("\t" + Event.INVALID + "\t" + currentJob.getId() + "\t" + Event.EVENTS[Event.INVALID] + "\tInvalid event.");
 			}
