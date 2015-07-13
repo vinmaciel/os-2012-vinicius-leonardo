@@ -1,0 +1,1 @@
+Simulador estocástico de processamento multiprogramado, dirigido por eventos.
